@@ -1,2 +1,2 @@
-# django_part1
-Django Tutorial - Part 1
+# Storefront (Django Tutorial - part 1)
+Some coding with Django
