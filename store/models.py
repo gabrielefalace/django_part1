@@ -13,6 +13,11 @@ class Collection(models.Model):
     # ^ put 'Product' to solve circular dependency
     #  related_name='+' tells Django not to create the reverse relationship
 
+    def __str__(self) -> str:
+        return self.title
+
+    class Meta:
+        ordering = ['title']
 
 class Product(models.Model):
     # In order not to creaate an ID field automatically
@@ -26,6 +31,12 @@ class Product(models.Model):
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion, related_name='products')
+
+    def __str__(self) -> str:
+        return self.title
+
+    class Meta:
+        ordering = ['title']
 
 
 class Customer(models.Model):
@@ -44,9 +55,12 @@ class Customer(models.Model):
     birth_date = models.DateField(null=True)
     membership = models.CharField(max_length=1, choices=MEMBERSHIP_CHOICES, default=MEMBERSHIP_BRONZE)
 
+    def __str__(self) -> str:
+        return f'{self.first_name} {self.last_name}'
     # order_set  # created automatically because of the FK relationship
 
     class Meta:
+        ordering = ['first_name', 'last_name']
         db_table = 'store_customer'
         indexes = [
             models.Index(fields=['first_name', 'last_name'])
