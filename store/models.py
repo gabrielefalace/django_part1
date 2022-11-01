@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 
 class Promotion(models.Model):
@@ -19,18 +20,23 @@ class Collection(models.Model):
     class Meta:
         ordering = ['title']
 
+
 class Product(models.Model):
     # In order not to creaate an ID field automatically
     # sku = models.CharField(max_length=10, primary_key=True)
     title = models.CharField(max_length=255)
-    slug = models.SlugField(default='-')
-    description = models.TextField()
+    slug = models.SlugField()
+    description = models.TextField(null=True, blank=True)
     # max = 9999.99
-    unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+    unit_price = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[MinValueValidator(1)]
+    )
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
-    promotions = models.ManyToManyField(Promotion, related_name='products')
+    promotions = models.ManyToManyField(Promotion, related_name='products', blank=True)
 
     def __str__(self) -> str:
         return self.title

@@ -19,8 +19,18 @@ class InventoryFilter(admin.SimpleListFilter):
             return queryset.filter(inventory__lt=10)
 
 
+
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
+    fields = ['title', 'slug']  # also readonly_fields
+    prepopulated_fields = {
+        'slug': ['title']
+    }
+    search_fields = ['title']
+    autocomplete_fields = ['collection']
+
+    # exclude = ['promotions']
+
     actions = ['clear_inventory']
     list_display = ['title', 'unit_price', 'inventory_status', 'collection_title']
     list_editable = ['unit_price']
@@ -60,15 +70,24 @@ class CustomerAdmin(admin.ModelAdmin):
         return format_html('<a href={}> Orders </a>', url)
 
 
+class OrderItemInline(admin.TabularInline):  # StackedInline would put elems vertically
+    autocomplete_fields = ['product']
+    model = models.OrderItem
+    min_num = 1
+    max_num = 10
+    extra = 0
+
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['id', 'placed_at', 'customer']
+    list_display = ['id', 'placed_at']
+    inlines = [OrderItemInline]
+    autocomplete_fields = ['customer']
 
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['title', 'products_count']
-
+    search_fields = ['title']
     @admin.display(ordering='products_count')
     def products_count(self, collection):
         # reverse('admin:app_model_page')  # the list of records is simply called 'changelist'
